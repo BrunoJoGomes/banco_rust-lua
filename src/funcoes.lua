@@ -1,39 +1,32 @@
 local function validar_cpf(cpf)
-    -- Remover caracteres não numéricos para garantir 11 dígitos
-    local cpf_limpo = cpf:gsub("[^0-9]", "")
 
-    -- 1. Verifica se o CPF tem 11 dígitos e se não são todos iguais
-    if #cpf_limpo ~= 11 or string.rep(cpf_limpo:sub(1,1), 11) == cpf_limpo then
+    if #cpf ~= 11 or string.rep(cpf:sub(1,1), 11) == cpf then
         return false, "CPF inválido: formato incorreto ou números repetidos."
     end
 
-    -- 2. Cálculo do primeiro dígito verificador (dv1)
     local soma1 = 0
     local peso = 10
     for i = 1, 9 do
-        soma1 = soma1 + tonumber(cpf_limpo:sub(i,i)) * peso
+        soma1 = soma1 + tonumber(cpf:sub(i,i)) * peso
         peso = peso - 1
     end
     local resto1 = soma1 % 11
     local dv1 = (resto1 < 2) and 0 or (11 - resto1)
 
-    -- 3. Verifica se o primeiro dígito está correto
-    if dv1 ~= tonumber(cpf_limpo:sub(10,10)) then
+    if dv1 ~= tonumber(cpf:sub(10,10)) then
         return false, "CPF inválido: primeiro dígito verificador incorreto."
     end
 
-    -- 4. Cálculo do segundo dígito verificador (dv2)
     local soma2 = 0
     local peso2 = 11
     for i = 1, 10 do
-        soma2 = soma2 + tonumber(cpf_limpo:sub(i,i)) * peso2
+        soma2 = soma2 + tonumber(cpf:sub(i,i)) * peso2
         peso2 = peso2 - 1
     end
     local resto2 = soma2 % 11
     local dv2 = (resto2 < 2) and 0 or (11 - resto2)
 
-    -- 5. Verifica se o segundo dígito está correto
-    if dv2 ~= tonumber(cpf_limpo:sub(11,11)) then
+    if dv2 ~= tonumber(cpf:sub(11,11)) then
         return false, "CPF inválido: segundo dígito verificador incorreto."
     end
 
@@ -43,8 +36,9 @@ end
 
 function add_transform(chave, valor)
     if chave:match("^cpf_") then
-        if not validar_cpf(valor) then
-            return false, "CPF inválido"
+        local valido, msg = validar_cpf(valor)
+        if not valido then
+            return false, msg
         end
         return true, valor
     elseif chave:match("^data_") then
@@ -55,6 +49,7 @@ function add_transform(chave, valor)
     end
     return true, valor
 end
+
 
 function get_transform(chave, valor)
     if chave:match("^cpf_") then

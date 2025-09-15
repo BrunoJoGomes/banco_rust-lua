@@ -1,5 +1,5 @@
 use std::collections::HashMap;
-use mlua::{Lua, Value, Result};
+use mlua::{Lua, Result};
 
 struct Banco {
     dados: HashMap<String, String>,
@@ -9,7 +9,6 @@ struct Banco {
 impl Banco {
     fn new() -> Self {
         let lua = Lua::new();
-        // Carrega as extensões Lua
         lua.load(include_str!("funcoes.lua"))
             .exec()
             .expect("Erro ao carregar Lua");
@@ -48,13 +47,17 @@ impl Banco {
 fn main() -> Result<()> {
     let mut banco = Banco::new();
 
-    // Exemplo CPF
-    banco.add("cpf_zezinho", "21868604810")?;
-    println!("{}", banco.get("cpf_zezinho")?);
+    //Exemplo CPF inválido
+    // banco.add("cpf_teste", "11111111111")?;
+    // println!("{}", banco.get("cpf_teste")?);
 
-    // Exemplo Data
-    banco.add("data_nascimento", "2000-01-23")?;
-    println!("{}", banco.get("data_nascimento")?);
+    //Exemplo CPF válido
+    banco.add("cpf_teste", "52998224725")?;
+    println!("{}", banco.get("cpf_teste")?);
+
+    //Exemplo Data
+    banco.add("data_nascimento_teste", "2001-05-27")?;
+    println!("{}", banco.get("data_nascimento_teste")?);
 
     Ok(())
 }
